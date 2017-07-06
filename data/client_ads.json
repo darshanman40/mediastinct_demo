@@ -1,0 +1,14 @@
+[
+  {
+    "name":"nike",
+    "url":"http://nike.com/getad"
+  },
+  {
+    "name":"amazon",
+    "url":"http://amazon.in/sendmeanad"
+  },
+  {
+    "name":"ebay",
+    "url":"http://localhost:3000/"
+  }
+]
