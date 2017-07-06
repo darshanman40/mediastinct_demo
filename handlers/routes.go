@@ -34,7 +34,6 @@ var routes = []route{
 	},
 }
 
-//addRoutes ...
 func addRoutes(routes ...route) {
 	for _, r := range routes {
 		var handler http.Handler

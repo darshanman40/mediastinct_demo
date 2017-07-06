@@ -34,8 +34,7 @@ type RespData struct {
 }
 
 type getMeAdService struct {
-	bids chan *httpclient.RespAd
-	// urlStrs    []string
+	bids       chan *httpclient.RespAd
 	clientURLs []data.ClientURLs
 }
 
@@ -55,7 +54,6 @@ func (g *getMeAdService) DoGet(w http.ResponseWriter, r *http.Request) {
 		log.Println("No adCode found")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNoContent)
-		// http.Error(w, "500: Internal Server Error", http.StatusInternalServerError)
 	} else {
 		rd := RespData{Adcode: adCode}
 		if data, err := json.Marshal(rd); err != nil {
@@ -66,7 +64,6 @@ func (g *getMeAdService) DoGet(w http.ResponseWriter, r *http.Request) {
 			w.Write(data)
 		}
 	}
-
 }
 
 func (g *getMeAdService) DoPost(w http.ResponseWriter, r *http.Request) {
@@ -103,11 +100,10 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 				}
 
 			}
-			// atomic.AddInt32(&works, -1)
 			works--
 			mutex.Unlock()
 		default:
-			if works == 0 {
+			if works <= 0 {
 				return adCode
 			}
 		}
@@ -117,7 +113,6 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 //NewGetMeAdService ...
 func NewGetMeAdService(mock bool) Service {
 	mutex = &sync.Mutex{}
-	// var urlStrs []string
 	var clientURLs []data.ClientURLs
 	if mock {
 		clientURLs = []data.ClientURLs{
@@ -129,10 +124,10 @@ func NewGetMeAdService(mock bool) Service {
 				Name: "amazon",
 				URL:  "http://localhost:8082/amazon/getmead",
 			},
-			// data.ClientURLs{
-			// 	Name: "ebay",
-			// 	URL:  "http://localhost:8082/ebay/getmead",
-			// },
+			data.ClientURLs{
+				Name: "ebay",
+				URL:  "http://localhost:8082/ebay/getmead",
+			},
 		}
 	} else {
 		clientURLs = data.ParseAll()

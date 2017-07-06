@@ -23,6 +23,9 @@ var ebayData []byte
 
 const postMethod = "POST"
 
+/*
+	This mock server created to test functionality
+*/
 func main() {
 	initData()
 
@@ -50,11 +53,10 @@ func initData() {
 
 func nikeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == postMethod {
-
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(nikeData)
 		log.Println(string(nikeData[:len(nikeData)]))
-		// }
+
 	} else {
 		http.Error(w, "Method not Allowed", http.StatusMethodNotAllowed)
 	}

@@ -36,7 +36,7 @@ type requestAd struct {
 	age    string
 }
 
-func (r *requestManger) Work(clientURLs []data.ClientURLs) { //*RespAd {
+func (r *requestManger) Work(clientURLs []data.ClientURLs) {
 	var rspAd RespAd
 	for _, clientURL := range clientURLs {
 		log.Println("Making request to " + clientURL.URL)
