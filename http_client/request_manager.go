@@ -27,8 +27,8 @@ type requestManger struct {
 
 //RespAd ...
 type RespAd struct {
-	Bid    string
-	AdCode string
+	Bid    float64 `json:"bid"`
+	AdCode string  `json:"adcode"`
 }
 
 type requestAd struct {

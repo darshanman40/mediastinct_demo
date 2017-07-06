@@ -11,8 +11,8 @@ const port = ":8082"
 
 //RespData ...
 type RespData struct {
-	Bid    string `json:"bid"`
-	Adcode string `json:"adcode"`
+	Bid    float64 `json:"bid"`
+	Adcode string  `json:"adcode"`
 }
 
 var nikeData []byte
@@ -38,13 +38,13 @@ func main() {
 func initData() {
 	amazonData, _ = json.Marshal(
 		RespData{
-			Bid:    "1.00",
+			Bid:    1.00,
 			Adcode: "http://www.amazon.com/in/en_gb/?ref=https%253A%252F%252Fwww.google.co.in%252F",
 		},
 	)
 	nikeData, _ = json.Marshal(
 		RespData{
-			Bid:    "2.00",
+			Bid:    2.00,
 			Adcode: "http://www.nike.com/in/en_gb/?ref=https%253A%252F%252Fwww.google.co.in%252F",
 		},
 	)

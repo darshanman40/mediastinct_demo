@@ -90,15 +90,10 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 		case bid := <-rspAd:
 			mutex.Lock()
 			if bid != nil {
-				if currentBid, err := strconv.ParseFloat(bid.Bid, 64); err != nil {
-					log.Println("Malformed floatpoint: " + bid.Bid)
-				} else {
-					if maxBid < currentBid {
-						maxBid = currentBid
-						adCode = bid.AdCode
-					}
+				if maxBid < bid.Bid {
+					maxBid = bid.Bid
+					adCode = bid.AdCode
 				}
-
 			}
 			works--
 			mutex.Unlock()
