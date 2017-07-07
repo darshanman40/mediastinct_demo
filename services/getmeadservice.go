@@ -91,6 +91,7 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 			mutex.Lock()
 			if bid != nil {
 				if maxBid < bid.Bid {
+					log.Println("Pushing: Bid= " + strconv.FormatFloat(bid.Bid, 'f', 6, 64) + " adCode= " + bid.AdCode)
 					maxBid = bid.Bid
 					adCode = bid.AdCode
 				}
@@ -113,15 +114,15 @@ func NewGetMeAdService(mock bool) Service {
 		clientURLs = []data.ClientURLs{
 			data.ClientURLs{
 				Name: "Nike",
-				URL:  "http://localhost:8082/nike/getad",
+				URL:  "http://localhost:8082/getad",
 			},
 			data.ClientURLs{
 				Name: "amazon",
-				URL:  "http://localhost:8082/amazon/getmead",
+				URL:  "http://localhost:7000/getmead",
 			},
 			data.ClientURLs{
 				Name: "ebay",
-				URL:  "http://localhost:8082/ebay/getmead",
+				URL:  "http://localhost:9000/getmead",
 			},
 		}
 	} else {

@@ -8,8 +8,9 @@ import (
 	"github.com/darshanman40/mediastinct_demo/handlers"
 )
 
-const port = ":8081"
+const portColon = ":"
 
+var port string
 var mock bool
 
 func main() {
@@ -21,11 +22,12 @@ func main() {
 		log.Println("============================================================")
 	}
 	handlers.InitHandlers(mock)
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(portColon+port, nil)
 
 }
 
 func initArguments() {
 	flag.BoolVar(&mock, "mock", false, "use mock server")
+	flag.StringVar(&port, "port", "80", "server port to be run")
 	flag.Parse()
 }
