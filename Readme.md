@@ -14,4 +14,4 @@ It will read config of client URLS from `client/client_ads.json` and pick 'adcod
 
 
 ##### Bugs:
-- Inconsistency with highest biding Ad (06-July-17)
+- ~~Inconsistency with highest biding Ad (06-July-17)~~: Fixed with locking-unlocking sync.Mutex for each client request (07-July-17).
