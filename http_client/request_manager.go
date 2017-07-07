@@ -13,13 +13,16 @@ import (
 
 const twoSecsDuration = 2 * time.Second
 
+// var mutex *sync.Mutex
+
 //RequestManager ...
 type RequestManager interface {
 	Work([]data.ClientURLs)
 }
 
 type requestManger struct {
-	client  *http.Client
+	// client  *http.Client
+	client  HTTPClient
 	rAd     requestAd
 	urlStrs []string
 	respAd  chan *RespAd
@@ -45,12 +48,14 @@ func (r *requestManger) Work(clientURLs []data.ClientURLs) {
 		query.Set("gender", r.rAd.gender)
 		query.Set("age", r.rAd.age)
 		go func() {
+			// mutex.Lock()
 			resp, err := r.client.Do(req)
 			if err != nil {
 				log.Println("ERR: " + err.Error())
 				r.respAd <- nil
 				return
 			}
+			// mutex.Unlock()
 			if resp.StatusCode == 200 {
 				buf := bytes.NewBuffer(make([]byte, 0))
 				buf.ReadFrom(resp.Body)
@@ -73,11 +78,12 @@ func (r *requestManger) Work(clientURLs []data.ClientURLs) {
 
 //NewRequestManager ...
 func NewRequestManager(gender string, age int, respAd chan *RespAd) RequestManager {
+	// mutex = &sync.Mutex{}
 	var rAd = requestAd{
 		gender: gender,
 		age:    strconv.Itoa(age),
 	}
-	client := &http.Client{Timeout: twoSecsDuration}
-
+	// client := &http.Client{Timeout: twoSecsDuration}
+	client := NewHTTPClient()
 	return &requestManger{rAd: rAd, client: client, respAd: respAd}
 }

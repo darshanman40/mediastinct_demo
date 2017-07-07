@@ -16,9 +16,9 @@ const (
 	ageTag    = "age"
 
 	postMethodNotAllowed   = "Post method not allowed"
-	getMethodNotAllowed    = "Post method not allowed"
-	putMethodNotAllowed    = "Post method not allowed"
-	deleteMethodNotAllowed = "Post method not allowed"
+	getMethodNotAllowed    = "Get method not allowed"
+	putMethodNotAllowed    = "Put method not allowed"
+	deleteMethodNotAllowed = "Delete method not allowed"
 )
 
 var mutex *sync.Mutex
@@ -79,7 +79,7 @@ func (g *getMeAdService) DoDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd chan *httpclient.RespAd) string {
-	var maxBid float64
+	maxBid := 0.00 //float64
 	var adCode string
 
 	rm.Work(clientURLs)
@@ -88,16 +88,20 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 	for {
 		select {
 		case bid := <-rspAd:
-			mutex.Lock()
+			// mutex.Lock()
 			if bid != nil {
+				// newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
 				if maxBid < bid.Bid {
-					log.Println("Pushing: Bid= " + strconv.FormatFloat(bid.Bid, 'f', 6, 64) + " adCode= " + bid.AdCode)
+					// log.Println("Pushing: Bid= " + newBid + " adCode= " + bid.AdCode)
+					log.Println("Pushing: ")
+					log.Print(bid)
+					log.Print("\n")
 					maxBid = bid.Bid
 					adCode = bid.AdCode
 				}
 			}
 			works--
-			mutex.Unlock()
+			// mutex.Unlock()
 		default:
 			if works <= 0 {
 				return adCode
@@ -129,7 +133,7 @@ func NewGetMeAdService(mock bool) Service {
 		clientURLs = data.ParseAll()
 	}
 
-	return &getMeAdService{bids: make(chan *httpclient.RespAd, len(clientURLs)),
+	return &getMeAdService{bids: make(chan *httpclient.RespAd),
 		clientURLs: clientURLs,
 	}
 }
