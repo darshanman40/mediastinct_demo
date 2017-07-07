@@ -94,7 +94,6 @@ func ebayHandler(w http.ResponseWriter, r *http.Request) {
 		//To test timeout
 		time.Sleep(3 * time.Second)
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNoContent)
 		w.Write(data)
 		log.Println(string(data[:len(data)]))
 
