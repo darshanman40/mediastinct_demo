@@ -35,7 +35,7 @@ type RespData struct {
 
 type getMeAdService struct {
 	bids       chan *httpclient.RespAd
-	clientURLs []data.ClientURLs
+	clientURLs []data.ClientURL
 }
 
 func (g *getMeAdService) DoGet(w http.ResponseWriter, r *http.Request) {
@@ -78,51 +78,65 @@ func (g *getMeAdService) DoDelete(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, deleteMethodNotAllowed, http.StatusMethodNotAllowed)
 }
 
-func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd chan *httpclient.RespAd) string {
+func process(clientURLs []data.ClientURL, rm httpclient.RequestManager, rspAd chan *httpclient.RespAd) string {
 	maxBid := 0.00
 	var adCode string
 
-	rm.Work(clientURLs)
-	works := int32(len(clientURLs))
+	rm.Works(clientURLs)
 
-	for {
-		select {
-		case bid := <-rspAd:
-			if bid != nil {
-				newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
-				log.Println("Recieved: AdCode:" + bid.AdCode + " Bid:" + newBid)
-				if maxBid < bid.Bid {
-					log.Println("Pushing: AdCode:" + bid.AdCode + " Bid:" + newBid)
-					maxBid = bid.Bid
-					adCode = bid.AdCode
-				}
-			} else {
-				log.Println("Received nil bid")
+	for bid := range rspAd {
+		if bid != nil {
+			newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
+			log.Println("Recieved: AdCode:" + bid.AdCode + " Bid:" + newBid)
+			if maxBid < bid.Bid {
+				log.Println("Pushing: AdCode:" + bid.AdCode + " Bid:" + newBid)
+				maxBid = bid.Bid
+				adCode = bid.AdCode
 			}
-			works--
-		default:
-			if works <= 0 {
-				return adCode
-			}
+		} else {
+			log.Println("Received nil bid")
 		}
 	}
+
+	return adCode
+	// for {
+	// 	select {
+	// 	case bid := <-rspAd:
+	// 		if bid != nil {
+	// 			newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
+	// 			log.Println("Recieved: AdCode:" + bid.AdCode + " Bid:" + newBid)
+	// 			if maxBid < bid.Bid {
+	// 				log.Println("Pushing: AdCode:" + bid.AdCode + " Bid:" + newBid)
+	// 				maxBid = bid.Bid
+	// 				adCode = bid.AdCode
+	// 			}
+	// 		} else {
+	// 			log.Println("Received nil bid")
+	// 		}
+	// 		works--
+	// 	default:
+	// 		if works <= 0 {
+	// 			return adCode
+	// 		}
+	// 	}
+	// }
 }
 
 //NewGetMeAdService ...
 func NewGetMeAdService(mock bool) Service {
 	mutex = &sync.Mutex{}
-	var clientURLs []data.ClientURLs
+	var clientURLs []data.ClientURL
 	if mock {
-		clientURLs = []data.ClientURLs{
-			data.ClientURLs{
+		clientURLs = []data.ClientURL{
+			data.ClientURL{
 				Name: "Nike",
 				URL:  "http://localhost:8082/getad",
 			},
-			data.ClientURLs{
+			data.ClientURL{
 				Name: "amazon",
 				URL:  "http://localhost:7000/getmead",
 			},
-			data.ClientURLs{
+			data.ClientURL{
 				Name: "ebay",
 				URL:  "http://localhost:9000/getmead",
 			},
@@ -131,7 +145,7 @@ func NewGetMeAdService(mock bool) Service {
 		clientURLs = data.ParseAll()
 	}
 
-	return &getMeAdService{bids: make(chan *httpclient.RespAd),
+	return &getMeAdService{bids: make(chan *httpclient.RespAd, len(clientURLs)),
 		clientURLs: clientURLs,
 	}
 }

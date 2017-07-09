@@ -8,21 +8,21 @@ import (
 	"os"
 )
 
-//ClientURLs ...
-type ClientURLs struct {
+//ClientURL ...
+type ClientURL struct {
 	Name string
 	URL  string
 }
 
 //ParseAll ...
-func ParseAll() []ClientURLs {
+func ParseAll() []ClientURL {
 	raw, err := ioutil.ReadFile("data/client_ads.json")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	var c []ClientURLs
+	var c []ClientURL
 	err = json.Unmarshal(raw, &c)
 	if err != nil {
 		log.Println("ERR at parse.go: " + err.Error())

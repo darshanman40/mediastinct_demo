@@ -15,15 +15,14 @@ const twoSecsDuration = 2 * time.Second
 
 //RequestManager ...
 type RequestManager interface {
-	Work([]data.ClientURLs)
+	Works([]data.ClientURL)
 }
 
 type requestManger struct {
-	// client  *http.Client
-	client  HTTPClient
-	rAd     requestAd
-	urlStrs []string
-	respAd  chan *RespAd
+	client             HTTPClient
+	rAd                requestAd
+	urlStrs            []string
+	respAd, respWorker chan *RespAd
 }
 
 //RespAd ...
@@ -37,7 +36,8 @@ type requestAd struct {
 	age    string
 }
 
-func (r *requestManger) Work(clientURLs []data.ClientURLs) {
+func (r *requestManger) Works(clientURLs []data.ClientURL) {
+	r.respWorker = make(chan *RespAd)
 
 	for _, clientURL := range clientURLs {
 		log.Println("Making request to " + clientURL.URL)
@@ -45,35 +45,58 @@ func (r *requestManger) Work(clientURLs []data.ClientURLs) {
 		query := req.URL.Query()
 		query.Set("gender", r.rAd.gender)
 		query.Set("age", r.rAd.age)
-		go func() {
-
-			var rspAd RespAd
-			resp, err := r.client.Do(req)
-			if err != nil {
-				log.Println("ERR: " + err.Error())
-				r.respAd <- nil
-				return
-			}
-
-			if resp.StatusCode == 200 {
-				buf := bytes.NewBuffer(make([]byte, 0))
-				buf.ReadFrom(resp.Body)
-				body := buf.Bytes()
-				if err := json.Unmarshal(body, &rspAd); err != nil {
-					log.Println("JSON Unmarshal ERR: " + err.Error())
-					r.respAd <- nil
-					return
-				}
-			} else {
-				log.Println("respone status code received: " + strconv.Itoa(resp.StatusCode))
-				r.respAd <- nil
-				return
-			}
-			log.Println("Recieved from client: " + rspAd.AdCode)
-			r.respAd <- &rspAd
-		}()
+		go work(r, req, clientURL)
 	}
 
+	ticker := time.NewTicker(twoSecsDuration)
+	defer func() {
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case rw, isOpen := <-r.respWorker:
+			if !isOpen {
+				log.Println("Channel is closed")
+			} else {
+				r.respAd <- rw
+			}
+
+		case <-ticker.C:
+			log.Println("Closing channels")
+			close(r.respAd)
+			return
+
+		}
+
+	}
+}
+
+func work(r *requestManger, req *http.Request, clientURL data.ClientURL) {
+	var rspAd RespAd
+	resp, err := r.client.Do(req)
+	if err != nil {
+		log.Println("ERR: " + err.Error())
+		r.respWorker <- nil
+		return
+	}
+
+	if resp.StatusCode == 200 {
+		buf := bytes.NewBuffer(make([]byte, 0))
+		buf.ReadFrom(resp.Body)
+		body := buf.Bytes()
+		if err := json.Unmarshal(body, &rspAd); err != nil {
+			log.Println("JSON Unmarshal ERR: " + err.Error())
+			r.respWorker <- nil
+			return
+		}
+	} else {
+		log.Println("respone status code received: " + strconv.Itoa(resp.StatusCode))
+		r.respWorker <- nil
+		return
+	}
+	log.Println("Recieved from client: " + rspAd.AdCode)
+	r.respWorker <- &rspAd
 }
 
 //NewRequestManager ...
