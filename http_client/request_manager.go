@@ -50,9 +50,12 @@ func (r *requestManger) Works(clientURLs []data.ClientURL) {
 
 	ticker := time.NewTicker(twoSecsDuration)
 	defer func() {
+		log.Println("Closing channels")
+		close(r.respAd)
 		ticker.Stop()
 	}()
 
+	workCounter := len(clientURLs)
 	for {
 		select {
 		case rw, isOpen := <-r.respWorker:
@@ -60,11 +63,15 @@ func (r *requestManger) Works(clientURLs []data.ClientURL) {
 				log.Println("Channel is closed")
 			} else {
 				r.respAd <- rw
+
+			}
+			workCounter--
+			if workCounter <= 0 {
+				return
 			}
 
 		case <-ticker.C:
-			log.Println("Closing channels")
-			close(r.respAd)
+
 			return
 
 		}
