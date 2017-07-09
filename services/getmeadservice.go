@@ -79,7 +79,7 @@ func (g *getMeAdService) DoDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd chan *httpclient.RespAd) string {
-	maxBid := 0.00 //float64
+	maxBid := 0.00
 	var adCode string
 
 	rm.Work(clientURLs)
@@ -88,20 +88,18 @@ func process(clientURLs []data.ClientURLs, rm httpclient.RequestManager, rspAd c
 	for {
 		select {
 		case bid := <-rspAd:
-			// mutex.Lock()
 			if bid != nil {
-				// newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
+				newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
+				log.Println("Recieved: AdCode:" + bid.AdCode + " Bid:" + newBid)
 				if maxBid < bid.Bid {
-					// log.Println("Pushing: Bid= " + newBid + " adCode= " + bid.AdCode)
-					log.Println("Pushing: ")
-					log.Print(bid)
-					log.Print("\n")
+					log.Println("Pushing: AdCode:" + bid.AdCode + " Bid:" + newBid)
 					maxBid = bid.Bid
 					adCode = bid.AdCode
 				}
+			} else {
+				log.Println("Received nil bid")
 			}
 			works--
-			// mutex.Unlock()
 		default:
 			if works <= 0 {
 				return adCode

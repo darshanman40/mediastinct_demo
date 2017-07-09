@@ -24,9 +24,7 @@ func (h *httpClient) Do(r *http.Request) (*http.Response, error) {
 	defer func() {
 		log.Println("Doing: " + r.URL.RequestURI())
 	}()
-	mutex.Lock()
 	resp, err := h.Client.Do(r)
-	mutex.Unlock()
 	return resp, err
 }
 
