@@ -1,12 +1,17 @@
-# Ad API Demo: Async Ad Server
+#Ad API Demo: Async Ad Server
 
 ## To run the api: <br>
 `go run main.go`
 
 ## To run API with mock data: <br>
 `go run main.go -mock=true`
-### Note: Start the mock service using:
-`go run mockserver/main.go`
+### Note: Start the mock service using following:
+#### To start Nike mock ad server
+`go run mockserver/main.go -profile "mocknikead"`
+#### To start Amazon mock ad server
+`go run mockserver/main.go -profile "mockamazonad"`
+#### To start eBay mock ad server
+`go run mockserver/main.go -profile "mockebayad"`
 
 The API runs on port 8081 and mock server runs on 8082. Using postman make Get request on http://localhost:8081/getmead?gender=male&age=20
 
