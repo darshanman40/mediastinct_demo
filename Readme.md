@@ -1,4 +1,4 @@
-# Ad API Demo
+# Ad API Demo: Async Ad Server
 
 ## To run the api: <br>
 `go run main.go`
