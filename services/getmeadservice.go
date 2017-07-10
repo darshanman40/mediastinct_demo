@@ -99,27 +99,6 @@ func process(clientURLs []data.ClientURL, rm httpclient.RequestManager, rspAd ch
 	}
 
 	return adCode
-	// for {
-	// 	select {
-	// 	case bid := <-rspAd:
-	// 		if bid != nil {
-	// 			newBid := strconv.FormatFloat(bid.Bid, 'f', 6, 64)
-	// 			log.Println("Recieved: AdCode:" + bid.AdCode + " Bid:" + newBid)
-	// 			if maxBid < bid.Bid {
-	// 				log.Println("Pushing: AdCode:" + bid.AdCode + " Bid:" + newBid)
-	// 				maxBid = bid.Bid
-	// 				adCode = bid.AdCode
-	// 			}
-	// 		} else {
-	// 			log.Println("Received nil bid")
-	// 		}
-	// 		works--
-	// 	default:
-	// 		if works <= 0 {
-	// 			return adCode
-	// 		}
-	// 	}
-	// }
 }
 
 //NewGetMeAdService ...
